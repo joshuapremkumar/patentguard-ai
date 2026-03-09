@@ -1,0 +1,1 @@
+"""PatentGuard AI – utility package."""
