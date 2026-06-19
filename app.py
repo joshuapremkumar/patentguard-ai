@@ -18,6 +18,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 
 import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 
 # ── Internal modules ──────────────────────────────────────────────────────
@@ -367,7 +368,36 @@ def render_improvements(results: dict) -> None:
 
 # ── Main ──────────────────────────────────────────────────────────────────
 
+def _inject_pendo() -> None:
+    """Inject the Pendo analytics snippet into the Streamlit page."""
+    components.html(
+        """
+<script>
+(function(apiKey){
+    var parent = window.parent;
+    var parentDoc = parent.document;
+    if (parent.__pendo_installed) return;
+    parent.__pendo_installed = true;
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){
+    o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+    y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+    z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(parent,parentDoc,'script','pendo');
+
+    parent.pendo.initialize({
+        visitor: {
+            id: ''
+        }
+    });
+})('7eced6a0-e183-4c1b-859b-e8c696126612');
+</script>
+""",
+        height=0,
+    )
+
+
 def main() -> None:
+    _inject_pendo()
     config = render_sidebar()
 
     # ── Header ────────────────────────────────────────────────────────────
